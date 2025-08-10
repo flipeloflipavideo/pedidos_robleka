@@ -61,6 +61,7 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   customerPhone: z.string().min(1, "Customer phone is required"),
   customerEmail: z.string().email().optional().or(z.literal("")),
   deliveryAddress: z.string().optional(),
+  deliveryDate: z.string().datetime().optional().nullable().transform((str) => str ? new Date(str) : null),
 });
 
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
