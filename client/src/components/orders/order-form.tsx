@@ -17,7 +17,7 @@ const formSchema = insertOrderSchema.extend({
   price: z.string().min(1, "Price is required"),
   advanceAmount: z.string().optional(),
   // --- CAMBIO: Transforma el string a un objeto Date ---
-  deliveryDate: z.string().min(1, "La fecha de entrega es obligatoria").transform((str) => new Date(str)),
+  deliveryDate: z.string().optional().transform((str) => str ? new Date(str) : undefined),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -46,9 +46,7 @@ export default function OrderForm({ onSuccess }: OrderFormProps) {
       paidAmount: "0",
       deliveryAddress: "",
       notes: "",
-      deliveryDate: "",
-    },
-  });
+      deliveryDate: undefined,
 
   const createOrderMutation = useMutation({
     mutationFn: (data: any) => api.orders.create(data),
