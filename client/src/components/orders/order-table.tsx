@@ -1,3 +1,5 @@
+// order-table.tsx (corregido)
+
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Edit, Check, Trash2, Upload, Image } from "lucide-react";
@@ -26,6 +28,7 @@ export default function OrderTable({ orders, isLoading, onUpdate }: OrderTablePr
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Las mutaciones se mantienen igual...
   const updateOrderMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<OrderWithCustomer> }) =>
       api.orders.update(id, data),
@@ -89,7 +92,8 @@ export default function OrderTable({ orders, isLoading, onUpdate }: OrderTablePr
       setUploadingImage(null);
     },
   });
-
+  
+  // Las funciones de ayuda se mantienen igual...
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -134,7 +138,7 @@ export default function OrderTable({ orders, isLoading, onUpdate }: OrderTablePr
       id: order.id,
       data: {
         status: "completed",
-        paidAmount: order.price, // Mark as fully paid when completed
+        paidAmount: order.price,
       },
     });
   };
@@ -143,7 +147,8 @@ export default function OrderTable({ orders, isLoading, onUpdate }: OrderTablePr
     setUploadingImage(orderId);
     uploadImageMutation.mutate({ id: orderId, file });
   };
-
+  
+  // La lógica del estado de carga se mantiene igual...
   if (isLoading) {
     return (
       <Card>
@@ -217,92 +222,18 @@ export default function OrderTable({ orders, isLoading, onUpdate }: OrderTablePr
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex space-x-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditingOrder(order);
-                                setShowEditDialog(true);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <div className="space-y-4">
-                              <h3 className="text-lg font-semibold">Editar Pedido</h3>
-                              <div className="space-y-3">
-                                <div>
-                                  <Label>Estado</Label>
-                                  <Select
-                                    value={editingOrder?.status}
-                                    onValueChange={(value) =>
-                                      setEditingOrder(prev => prev ? { ...prev, status: value as any } : null)
-                                    }
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="pending">Pendiente</SelectItem>
-                                      <SelectItem value="in_progress">En proceso</SelectItem>
-                                      <SelectItem value="completed">Completado</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <div>
-                                  <Label>Cantidad Pagada</Label>
-                                  <Input
-                                    type="number"
-                                    value={editingOrder?.paidAmount}
-                                    onChange={(e) =>
-                                      setEditingOrder(prev => prev ? { ...prev, paidAmount: e.target.value } : null)
-                                    }
-                                  />
-                                </div>
-                                <div>
-                                  <Label>Dirección de Entrega</Label>
-                                  <Input
-                                    value={editingOrder?.deliveryAddress || ""}
-                                    onChange={(e) =>
-                                      setEditingOrder(prev => prev ? { ...prev, deliveryAddress: e.target.value } : null)
-                                    }
-                                  />
-                                </div>
-                                <div>
-                                  <Label>Fecha de Entrega</Label>
-                                  <Input
-                                    type="date"
-                                    value={editingOrder?.deliveryDate ? new Date(editingOrder.deliveryDate).toISOString().split('T')[0] : ""}
-                                    onChange={(e) =>
-                                      setEditingOrder(prev => prev ? { ...prev, deliveryDate: new Date(e.target.value) } : null)
-                                    }
-                                  />
-                                </div>
-                              </div>
-                              <div className="flex space-x-2">
-                                <Button
-                                  variant="outline"
-                                  onClick={() => setEditingOrder(null)}
-                                >
-                                  Cancelar
-                                </Button>
-                                <Button
-                                  onClick={() => editingOrder && updateOrderMutation.mutate({
-                                    id: editingOrder.id,
-                                    data: editingOrder
-                                  })}
-                                  disabled={updateOrderMutation.isPending}
-                                >
-                                  Guardar
-                                </Button>
-                              </div>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-
+                        {/* AQUI ESTÁ EL CAMBIO. ELIMINAMOS EL <Dialog> DUPLICADO */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setEditingOrder(order);
+                            setShowEditDialog(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        
                         <Button
                           variant="ghost"
                           size="sm"
@@ -367,7 +298,7 @@ export default function OrderTable({ orders, isLoading, onUpdate }: OrderTablePr
         )}
       </CardContent>
       
-      {/* New Edit Dialog */}
+      {/* MANTENEMOS SOLO ESTA PARTE PARA EL MODAL DE EDICIÓN */}
       {editingOrder && (
         <OrderEditDialog
           order={editingOrder}
