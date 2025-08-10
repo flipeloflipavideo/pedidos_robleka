@@ -47,6 +47,8 @@ export default function OrderForm({ onSuccess }: OrderFormProps) {
       deliveryAddress: "",
       notes: "",
       deliveryDate: undefined,
+    },
+  });
 
   const createOrderMutation = useMutation({
     mutationFn: (data: any) => api.orders.create(data),
