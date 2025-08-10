@@ -16,6 +16,8 @@ import { z } from "zod";
 const formSchema = insertOrderSchema.extend({
   price: z.string().min(1, "Price is required"),
   advanceAmount: z.string().optional(),
+  // --- AÑADIDO: Validación de la fecha de entrega ---
+  deliveryDate: z.string().min(1, "La fecha de entrega es obligatoria"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -44,6 +46,8 @@ export default function OrderForm({ onSuccess }: OrderFormProps) {
       paidAmount: "0",
       deliveryAddress: "",
       notes: "",
+      // --- AÑADIDO: Valor por defecto para la fecha ---
+      deliveryDate: "",
     },
   });
 
@@ -73,7 +77,7 @@ export default function OrderForm({ onSuccess }: OrderFormProps) {
       ...data,
       price: data.price,
       advanceAmount: data.advanceAmount || "0",
-      paidAmount: data.paymentMethod === "full" ? data.price : 
+      paidAmount: data.paymentMethod === "full" ? data.price :
                   data.paymentMethod === "advance" ? data.advanceAmount || "0" : "0",
     };
 
@@ -245,6 +249,10 @@ export default function OrderForm({ onSuccess }: OrderFormProps) {
                 type="date"
                 {...form.register("deliveryDate")}
               />
+              {/* --- AÑADIDO: Mensaje de error para la fecha --- */}
+              {form.formState.errors.deliveryDate && (
+                <p className="text-sm text-red-600 mt-1">{form.formState.errors.deliveryDate.message}</p>
+              )}
             </div>
           </div>
         </div>
