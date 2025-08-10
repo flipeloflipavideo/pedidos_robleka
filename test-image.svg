@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f3f4f6"/>
+  <rect x="50" y="50" width="300" height="200" fill="#1e293b" rx="10"/>
+  <text x="200" y="120" text-anchor="middle" font-family="Arial" font-size="18" fill="white">
+    ROBLEKA PEDIDOS
+  </text>
+  <text x="200" y="150" text-anchor="middle" font-family="Arial" font-size="14" fill="#cbd5e1">
+    Libreta Personalizada
+  </text>
+  <text x="200" y="180" text-anchor="middle" font-family="Arial" font-size="12" fill="#94a3b8">
+    Producto Terminado
+  </text>
+  <circle cx="100" cy="220" r="8" fill="#8b5cf6"/>
+  <circle cx="150" cy="220" r="8" fill="#3b82f6"/>
+  <circle cx="200" cy="220" r="8" fill="#06b6d4"/>
+  <circle cx="250" cy="220" r="8" fill="#10b981"/>
+  <circle cx="300" cy="220" r="8" fill="#f59e0b"/>
+</svg>

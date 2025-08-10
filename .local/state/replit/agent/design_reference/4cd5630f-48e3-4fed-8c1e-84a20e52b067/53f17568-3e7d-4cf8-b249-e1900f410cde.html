@@ -1,0 +1,664 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrderFlow - Gestión de Pedidos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-50 font-sans">
+    <!-- @COMPONENT: AppLayout -->
+    <div class="min-h-screen">
+        <!-- Mobile Navigation -->
+        <!-- @COMPONENT: MobileNavigation -->
+        <nav class="lg:hidden bg-white border-b border-slate-200 px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-clipboard-list text-primary-500 text-xl"></i>
+                    <h1 class="text-xl font-semibold text-slate-800">OrderFlow</h1>
+                </div>
+                <button id="mobileMenuBtn" class="p-2 rounded-lg hover:bg-slate-100">
+                    <i class="fas fa-bars text-slate-600"></i>
+                </button>
+            </div>
+        </nav>
+        <!-- @END_COMPONENT: MobileNavigation -->
+
+        <div class="flex">
+            <!-- Desktop Sidebar -->
+            <!-- @COMPONENT: DesktopSidebar -->
+            <aside class="hidden lg:block w-64 bg-white border-r border-slate-200 min-h-screen">
+                <div class="p-6">
+                    <div class="flex items-center space-x-3 mb-8">
+                        <i class="fas fa-clipboard-list text-primary-500 text-2xl"></i>
+                        <h1 class="text-2xl font-bold text-slate-800">OrderFlow</h1>
+                    </div>
+                    
+                    <nav class="space-y-2" data-implementation="Implement navigation routing">
+                        <a href="#dashboard" class="nav-item active flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary-50 text-primary-700 font-medium">
+                            <i class="fas fa-chart-pie w-5"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="#orders" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50">
+                            <i class="fas fa-shopping-cart w-5"></i>
+                            <span>Pedidos</span>
+                        </a>
+                        <a href="#calendar" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50">
+                            <i class="fas fa-calendar-alt w-5"></i>
+                            <span>Calendario</span>
+                        </a>
+                        <a href="#finances" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50">
+                            <i class="fas fa-dollar-sign w-5"></i>
+                            <span>Finanzas</span>
+                        </a>
+                        <a href="#customers" class="nav-item flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50">
+                            <i class="fas fa-users w-5"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+            <!-- @END_COMPONENT: DesktopSidebar -->
+
+            <!-- Main Content -->
+            <main class="flex-1 p-4 lg:p-8">
+                <!-- Dashboard Section -->
+                <!-- @COMPONENT: DashboardSection -->
+                <div id="dashboard-section" class="section-content">
+                    <!-- Header -->
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-2">Dashboard</h2>
+                            <p class="text-slate-600">Resumen general de tu negocio</p>
+                        </div>
+                        <button class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium mt-4 lg:mt-0" data-event="click:showNewOrderModal">
+                            <i class="fas fa-plus mr-2"></i>
+                            Nuevo Pedido
+                        </button>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <!-- @COMPONENT: StatsCards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-slate-600 text-sm font-medium">Pedidos Activos</p>
+                                    <p class="text-2xl font-bold text-slate-800 mt-1" data-bind="stats.activeOrders">24</p>
+                                </div>
+                                <div class="bg-blue-100 p-3 rounded-lg">
+                                    <i class="fas fa-shopping-cart text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center mt-4 text-sm">
+                                <span class="text-green-600">+12%</span>
+                                <span class="text-slate-600 ml-1">vs. mes anterior</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-slate-600 text-sm font-medium">Ingresos del Mes</p>
+                                    <p class="text-2xl font-bold text-slate-800 mt-1" data-bind="stats.monthlyRevenue">€1,245</p>
+                                </div>
+                                <div class="bg-green-100 p-3 rounded-lg">
+                                    <i class="fas fa-euro-sign text-green-600"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center mt-4 text-sm">
+                                <span class="text-green-600">+8%</span>
+                                <span class="text-slate-600 ml-1">vs. mes anterior</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-slate-600 text-sm font-medium">Pedidos Completados</p>
+                                    <p class="text-2xl font-bold text-slate-800 mt-1" data-bind="stats.completedOrders">156</p>
+                                </div>
+                                <div class="bg-amber-100 p-3 rounded-lg">
+                                    <i class="fas fa-check-circle text-amber-600"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center mt-4 text-sm">
+                                <span class="text-green-600">+15%</span>
+                                <span class="text-slate-600 ml-1">vs. mes anterior</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-slate-600 text-sm font-medium">Clientes Activos</p>
+                                    <p class="text-2xl font-bold text-slate-800 mt-1" data-bind="stats.activeCustomers">89</p>
+                                </div>
+                                <div class="bg-purple-100 p-3 rounded-lg">
+                                    <i class="fas fa-users text-purple-600"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center mt-4 text-sm">
+                                <span class="text-green-600">+5%</span>
+                                <span class="text-slate-600 ml-1">vs. mes anterior</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: StatsCards -->
+
+                    <!-- Charts Section -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- @COMPONENT: RevenueChart -->
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Ingresos por Mes</h3>
+                            <canvas id="revenueChart" width="400" height="200"></canvas>
+                        </div>
+                        <!-- @END_COMPONENT: RevenueChart -->
+
+                        <!-- @COMPONENT: OrderStatusChart -->
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Estado de Pedidos</h3>
+                            <canvas id="statusChart" width="400" height="200"></canvas>
+                        </div>
+                        <!-- @END_COMPONENT: OrderStatusChart -->
+                    </div>
+
+                    <!-- Recent Orders -->
+                    <!-- @COMPONENT: RecentOrders -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                        <div class="p-6 border-b border-slate-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-slate-800">Pedidos Recientes</h3>
+                                <a href="#orders" class="text-primary-500 hover:text-primary-600 text-sm font-medium">Ver todos</a>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Cliente</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Producto</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Estado</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Precio</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    <!-- @MAP: recentOrders.map(order => ( -->
+                                    <tr data-mock="true">
+                                        <td class="py-4 px-6">
+                                            <div>
+                                                <p class="font-medium text-slate-800">María García</p>
+                                                <p class="text-sm text-slate-600">maria@email.com</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <p class="text-slate-800">Tarta personalizada</p>
+                                            <p class="text-sm text-slate-600">Cumpleaños</p>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <span class="px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">En proceso</span>
+                                        </td>
+                                        <td class="py-4 px-6 font-medium text-slate-800">€45.00</td>
+                                        <td class="py-4 px-6 text-slate-600">2024-01-15</td>
+                                    </tr>
+                                    <tr data-mock="true">
+                                        <td class="py-4 px-6">
+                                            <div>
+                                                <p class="font-medium text-slate-800">Carlos López</p>
+                                                <p class="text-sm text-slate-600">carlos@email.com</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <p class="text-slate-800">Cupcakes</p>
+                                            <p class="text-sm text-slate-600">Oficina</p>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <span class="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Completado</span>
+                                        </td>
+                                        <td class="py-4 px-6 font-medium text-slate-800">€30.00</td>
+                                        <td class="py-4 px-6 text-slate-600">2024-01-14</td>
+                                    </tr>
+                                    <tr data-mock="true">
+                                        <td class="py-4 px-6">
+                                            <div>
+                                                <p class="font-medium text-slate-800">Ana Martín</p>
+                                                <p class="text-sm text-slate-600">ana@email.com</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <p class="text-slate-800">Pastel de boda</p>
+                                            <p class="text-sm text-slate-600">Romántico</p>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <span class="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pendiente</span>
+                                        </td>
+                                        <td class="py-4 px-6 font-medium text-slate-800">€120.00</td>
+                                        <td class="py-4 px-6 text-slate-600">2024-01-13</td>
+                                    </tr>
+                                    <!-- @END_MAP )) -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: RecentOrders -->
+                </div>
+                <!-- @END_COMPONENT: DashboardSection -->
+
+                <!-- Orders Section (Hidden by default) -->
+                <!-- @COMPONENT: OrdersSection -->
+                <div id="orders-section" class="section-content hidden">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-2">Gestión de Pedidos</h2>
+                            <p class="text-slate-600">Administra todos tus pedidos</p>
+                        </div>
+                        <button class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium mt-4 lg:mt-0" data-event="click:showNewOrderModal">
+                            <i class="fas fa-plus mr-2"></i>
+                            Nuevo Pedido
+                        </button>
+                    </div>
+
+                    <!-- Filters -->
+                    <!-- @COMPONENT: OrderFilters -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Buscar</label>
+                                <div class="relative">
+                                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                    <input type="text" placeholder="Cliente, producto..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Estado</label>
+                                <select class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    <option>Todos los estados</option>
+                                    <option>Pendiente</option>
+                                    <option>En proceso</option>
+                                    <option>Completado</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Método de Pago</label>
+                                <select class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    <option>Todos</option>
+                                    <option>Contra entrega</option>
+                                    <option>Anticipo</option>
+                                    <option>Pago completo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Fecha</label>
+                                <input type="date" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: OrderFilters -->
+
+                    <!-- Orders Table -->
+                    <!-- @COMPONENT: OrdersTable -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Cliente</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Producto</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Estado</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Pago</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Precio</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Entrega</th>
+                                        <th class="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    <!-- @MAP: orders.map(order => ( -->
+                                    <tr data-mock="true">
+                                        <td class="py-4 px-6 font-mono text-sm">#001</td>
+                                        <td class="py-4 px-6">
+                                            <div>
+                                                <p class="font-medium text-slate-800">María García</p>
+                                                <p class="text-sm text-slate-600">+34 666 123 456</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <p class="text-slate-800">Tarta personalizada</p>
+                                            <p class="text-sm text-slate-600">Cumpleaños - Chocolate</p>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <span class="px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">En proceso</span>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">Anticipo</span>
+                                            <p class="text-xs text-slate-600 mt-1">€15 de €45</p>
+                                        </td>
+                                        <td class="py-4 px-6 font-medium text-slate-800">€45.00</td>
+                                        <td class="py-4 px-6 text-slate-600">2024-01-20</td>
+                                        <td class="py-4 px-6">
+                                            <div class="flex space-x-2">
+                                                <button class="p-1 text-slate-400 hover:text-slate-600" data-event="click:editOrder" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="p-1 text-slate-400 hover:text-green-600" data-event="click:completeOrder" title="Completar">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="p-1 text-slate-400 hover:text-red-600" data-event="click:deleteOrder" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- @END_MAP )) -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+                            <p class="text-sm text-slate-600">Mostrando 1 a 10 de 156 pedidos</p>
+                            <div class="flex space-x-1">
+                                <button class="px-3 py-1 text-sm border border-slate-300 rounded hover:bg-slate-50">Anterior</button>
+                                <button class="px-3 py-1 text-sm bg-primary-500 text-white rounded">1</button>
+                                <button class="px-3 py-1 text-sm border border-slate-300 rounded hover:bg-slate-50">2</button>
+                                <button class="px-3 py-1 text-sm border border-slate-300 rounded hover:bg-slate-50">3</button>
+                                <button class="px-3 py-1 text-sm border border-slate-300 rounded hover:bg-slate-50">Siguiente</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: OrdersTable -->
+                </div>
+                <!-- @END_COMPONENT: OrdersSection -->
+            </main>
+        </div>
+
+        <!-- Mobile Bottom Navigation -->
+        <!-- @COMPONENT: MobileBottomNav -->
+        <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200">
+            <div class="grid grid-cols-5 py-2">
+                <a href="#dashboard" class="mobile-nav-item active flex flex-col items-center py-2 px-1">
+                    <i class="fas fa-chart-pie text-primary-500 mb-1"></i>
+                    <span class="text-xs text-primary-600 font-medium">Dashboard</span>
+                </a>
+                <a href="#orders" class="mobile-nav-item flex flex-col items-center py-2 px-1">
+                    <i class="fas fa-shopping-cart text-slate-400 mb-1"></i>
+                    <span class="text-xs text-slate-500">Pedidos</span>
+                </a>
+                <a href="#calendar" class="mobile-nav-item flex flex-col items-center py-2 px-1">
+                    <i class="fas fa-calendar-alt text-slate-400 mb-1"></i>
+                    <span class="text-xs text-slate-500">Calendario</span>
+                </a>
+                <a href="#finances" class="mobile-nav-item flex flex-col items-center py-2 px-1">
+                    <i class="fas fa-dollar-sign text-slate-400 mb-1"></i>
+                    <span class="text-xs text-slate-500">Finanzas</span>
+                </a>
+                <a href="#customers" class="mobile-nav-item flex flex-col items-center py-2 px-1">
+                    <i class="fas fa-users text-slate-400 mb-1"></i>
+                    <span class="text-xs text-slate-500">Clientes</span>
+                </a>
+            </div>
+        </nav>
+        <!-- @END_COMPONENT: MobileBottomNav -->
+    </div>
+    <!-- @END_COMPONENT: AppLayout -->
+
+    <!-- New Order Modal -->
+    <!-- @COMPONENT: NewOrderModal -->
+    <div id="newOrderModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-slate-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-slate-800">Nuevo Pedido</h3>
+                        <button id="closeModal" class="p-2 hover:bg-slate-100 rounded-lg">
+                            <i class="fas fa-times text-slate-400"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <form class="p-6 space-y-6" data-implementation="Handle form submission with validation">
+                    <!-- Customer Information -->
+                    <div>
+                        <h4 class="text-lg font-medium text-slate-800 mb-4">Información del Cliente</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Nombre completo *</label>
+                                <input type="text" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Ej. María García">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Teléfono *</label>
+                                <input type="tel" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="+34 666 123 456">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
+                                <input type="email" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="maria@email.com">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Dirección de entrega</label>
+                                <textarea class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="2" placeholder="Dirección completa (opcional, se puede añadir después)"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Information -->
+                    <div>
+                        <h4 class="text-lg font-medium text-slate-800 mb-4">Detalles del Producto</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Producto *</label>
+                                <input type="text" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Ej. Tarta personalizada">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Tema/Ocasión</label>
+                                <input type="text" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Ej. Cumpleaños, Boda">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Descripción adicional</label>
+                                <textarea class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="3" placeholder="Detalles específicos, colores, sabores, etc."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing and Payment -->
+                    <div>
+                        <h4 class="text-lg font-medium text-slate-800 mb-4">Precio y Pago</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Precio total *</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">€</span>
+                                    <input type="number" required step="0.01" min="0" class="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Método de pago *</label>
+                                <select required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    <option value="">Seleccionar método</option>
+                                    <option value="delivery">Contra entrega</option>
+                                    <option value="advance">Anticipo</option>
+                                    <option value="full">Pago completo adelantado</option>
+                                </select>
+                            </div>
+                            <div id="advanceAmount" class="hidden">
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Cantidad del anticipo</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">€</span>
+                                    <input type="number" step="0.01" min="0" class="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Fecha de entrega</label>
+                                <input type="date" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                        <button type="button" id="cancelOrder" class="flex-1 px-4 py-2 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 font-medium">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium">
+                            Crear Pedido
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: NewOrderModal -->
+
+    <script>
+        (function() {
+            // TODO: Implement proper state management and API integration
+            
+            // Navigation functionality
+            const navItems = document.querySelectorAll('.nav-item, .mobile-nav-item');
+            const sections = document.querySelectorAll('.section-content');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = item.getAttribute('href').substring(1);
+                    
+                    // Update active navigation
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Show target section
+                    sections.forEach(section => section.classList.add('hidden'));
+                    const targetSection = document.getElementById(target + '-section');
+                    if (targetSection) {
+                        targetSection.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // Modal functionality
+            const newOrderModal = document.getElementById('newOrderModal');
+            const openModalBtns = document.querySelectorAll('[data-event="click:showNewOrderModal"]');
+            const closeModalBtn = document.getElementById('closeModal');
+            const cancelOrderBtn = document.getElementById('cancelOrder');
+
+            openModalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    newOrderModal.classList.remove('hidden');
+                });
+            });
+
+            function closeModal() {
+                newOrderModal.classList.add('hidden');
+            }
+
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelOrderBtn.addEventListener('click', closeModal);
+
+            // Close modal when clicking outside
+            newOrderModal.addEventListener('click', (e) => {
+                if (e.target === newOrderModal) {
+                    closeModal();
+                }
+            });
+
+            // Payment method change handler
+            const paymentSelect = document.querySelector('select[required]');
+            const advanceAmountDiv = document.getElementById('advanceAmount');
+            
+            paymentSelect.addEventListener('change', (e) => {
+                if (e.target.value === 'advance') {
+                    advanceAmountDiv.classList.remove('hidden');
+                } else {
+                    advanceAmountDiv.classList.add('hidden');
+                }
+            });
+
+            // Initialize charts
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Ingresos',
+                        data: [820, 932, 1245, 1156, 1389, 1245],
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Status Chart
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completados', 'En proceso', 'Pendientes'],
+                    datasets: [{
+                        data: [156, 24, 18],
+                        backgroundColor: ['#10B981', '#F59E0B', '#3B82F6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            // TODO: Implement mobile menu overlay if needed
+
+        })();
+    </script>
+</body>
+</html>
